@@ -12,10 +12,12 @@
         "axios": "^0.18.0",
         "bootstrap": "^4.0.0",
         "cheerio": "^1.0.0-rc.2",
+        "cheerio-get-css-selector": "^2.0.0",
         "express": "^4.16.3",
         "jquery-slim": "^3.0.0",
         "lodash": "^4.17.5",
-        "morgan": "^1.9.0"
+        "morgan": "^1.9.0",
+        "puppeteer": "^10.4.0"
     },
     "devDependencies": {
         "autoprefixer": "^8.2.0",
@@ -33,10 +35,6 @@
         "webpack-cli": "^2.0.13"
     },
     "license": "MIT",
-    "engines": {
-        "node": "8.9.4",
-        "npm": "5.6.0"
-    },
     "repository": {
         "type": "git",
         "url": "https://github.com/gladchinda/scotch-scraping-node-app.git"

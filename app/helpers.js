@@ -1,7 +1,8 @@
 const _ = require('lodash');
 const axios = require("axios");
 const cheerio = require("cheerio");
-
+const puppeteer = require('puppeteer')
+const isHeadless = false
 ///////////////////////////////////////////////////////////////////////////////
 // UTILITY FUNCTIONS
 ///////////////////////////////////////////////////////////////////////////////
@@ -85,10 +86,17 @@ const fetchHtmlFromUrl = async url => {
 		.get(enforceHttpsUrl(url))
 		.then(response => cheerio.load(response.data))
 		.catch(error => {
+			console.log(error, 'errorerrorerror')
 			error.status = (error.response && error.response.status) || 500;
 			throw error;
 		});
 };
+
+const fetchHtmlFromPuppeteer = async pupDom => {
+	return cheerio.load(pupDom)
+}
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // HTML PARSING HELPER FUNCTIONS
@@ -130,6 +138,33 @@ const extractNumber = compose(parseInt, sanitizeNumber, fetchElemInnerText);
 const extractUrlAttribute = attr =>
 	compose(enforceHttpsUrl, fetchElemAttribute(attr));
 
+const fetchDomPuppeteer = async url => {
+	/* #region  set up browser and page */
+	let browser = await puppeteer.launch({
+		defaultViewport: null,
+		headless: isHeadless,
+		args: ["--no-sandbox", "--disable-setuid-sandbox"],
+		ignoreHTTPSErrors: true
+	});
+
+	let page = await browser.newPage();
+	await page._client.send("Network.enable", {
+		maxResourceBufferSize: 1024 * 1204 * 100,
+		maxTotalBufferSize: 1024 * 1204 * 200
+	});
+	/* #endregion */
+
+	/* #region  login */
+	await page.goto(url, { waitUntil: 'networkidle0' });
+	// await page.waitFor(1000);
+	const dom = await page.evaluate(() => document.querySelector('*').outerHTML);
+	browser.close()
+	return dom
+	// console.log(dom)
+
+	/* #endregion */
+}
+
 
 module.exports = {
 	compose,
@@ -145,5 +180,7 @@ module.exports = {
 	fetchElemAttribute,
 	extractFromElems,
 	extractNumber,
-	extractUrlAttribute
+	extractUrlAttribute,
+	fetchHtmlFromPuppeteer,
+	fetchDomPuppeteer
 };
