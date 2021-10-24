@@ -2,7 +2,8 @@ const _ = require('lodash');
 const axios = require("axios");
 const cheerio = require("cheerio");
 var GetUniqueSelector = require('cheerio-get-css-selector');
-
+const puppeteer = require('puppeteer')
+const isHeadless = false
 
 /**
  * Loads the html string returned for the given URL
@@ -66,7 +67,97 @@ const fetchHtmlFromPuppeteer = async pupDom => {
     GetUniqueSelector.init($);
     return $
 }
-// const getTextBy
+const getChiSoTaiChinhBySelector = ($, quarter, selector) => {
+    // console.log(quarter, 'quarterquarter')
+    // console.log(selector, 'selectorselector')
+    const timeIndex = getIndexByColumnName($, quarter)
+    // console.log(timeIndex, 'timeIndextimeIndex')
+    const $chiSo = $(selector)
+
+
+    const text = getTextAtIndex($, $chiSo, timeIndex)
+    const result = formatNumber(text)
+    return result
+}
+
+const isTextExist = async (page, text) => {
+    try {
+        let chk = false
+        if ((await page.waitForXPath(`//*[contains(text(), "${text}")]`, {
+            timeout: 50
+        })) !== null) {
+            chk = true
+        } else {
+            chk = false
+        }
+        return chk
+    } catch (error) {
+        // console.log(error, 'errorerror')
+        return false
+    }
+}
+
+const click = async (page, selector) => {
+    await page.$eval(selector, btn => btn.click());
+
+}
+
+const goToPreviousPage = async (page) => {
+    await click(page, '.fa-chevron-left')
+}
+
+const goToNextPage = async (page) => {
+    await click(page, '.fa-chevron-left')
+}
+
+async function goBackUntilFound(page, time) {
+    await goToPreviousPage(page)
+    await page.waitForSelector('#table-0 > tbody > tr:nth-child(1)')
+    let isQuarterFound = await isTextExist(page, time)
+    console.log(isQuarterFound, 'isQuarterFound ' + time)
+
+    if (!isQuarterFound) {
+        return goBackUntilFound(page, time)
+    }
+
+}
+
+
+const fetchDomPuppeteer = async (url, quarter) => {
+    /* #region  set up browser and page */
+    let browser = await puppeteer.launch({
+        defaultViewport: null,
+        headless: isHeadless,
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        ignoreHTTPSErrors: true
+    });
+
+    let page = await browser.newPage();
+    await page._client.send("Network.enable", {
+        maxResourceBufferSize: 1024 * 1204 * 100,
+        maxTotalBufferSize: 1024 * 1204 * 200
+    });
+    /* #endregion */
+
+    /* #region  login */
+    await page.goto(url);
+    await page.waitForSelector('#table-0 > tbody > tr:nth-child(1)')
+
+
+    let isQuarterFound = await isTextExist(page, quarter)
+
+    if (!isQuarterFound) {
+        await goBackUntilFound(page, quarter)
+    }
+
+
+    const dom = await page.evaluate(() => document.querySelector('*').outerHTML);
+    // browser.close()
+    return dom
+    // console.log(dom)
+
+    /* #endregion */
+}
 
 
 module.exports = {
@@ -77,5 +168,7 @@ module.exports = {
     getIndexByColumnName,
     getTextAtIndex,
     fetchHtmlFromPuppeteer,
-    formatNumber
+    formatNumber,
+    getChiSoTaiChinhBySelector,
+    fetchDomPuppeteer
 }

@@ -21,8 +21,14 @@ app.get('/ping', async (req, res, next) => {
 
 app.get('/stock', async (req, res, next) => {
 	try {
-		const data = await fetchData()
-		return res.send(data)
+		// console.log(req.query, 'req.queryreq.query')
+		const { time, code } = req.query
+		// console.log({ time, code }, 'router ...')
+		const data = await fetchData(time, code)
+		return res.send({
+			success: true,
+			data
+		})
 	} catch (error) {
 		console.log("errr")
 		console.log(error)
