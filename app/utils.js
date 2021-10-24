@@ -114,7 +114,7 @@ async function goBackUntilFound(page, time) {
     await goToPreviousPage(page)
     await page.waitForSelector('#table-0 > tbody > tr:nth-child(1)')
     let isQuarterFound = await isTextExist(page, time)
-    console.log(isQuarterFound, 'isQuarterFound ' + time)
+    // console.log(isQuarterFound, 'isQuarterFound ' + time)
 
     if (!isQuarterFound) {
         return goBackUntilFound(page, time)
@@ -122,6 +122,37 @@ async function goBackUntilFound(page, time) {
 
 }
 
+const getCompanyUrl = async code => {
+    const url = `https://finance.vietstock.vn/BVH-tap-doan-bao-viet.htm`
+    /* #region  set up browser and page */
+    let browser = await puppeteer.launch({
+        defaultViewport: null,
+        headless: isHeadless,
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        ignoreHTTPSErrors: true
+    });
+
+    let page = await browser.newPage();
+    await page._client.send("Network.enable", {
+        maxResourceBufferSize: 1024 * 1204 * 100,
+        maxTotalBufferSize: 1024 * 1204 * 200
+    });
+    /* #endregion */
+
+    /* #region  login */
+    await page.goto(url);
+    const searchSelector = '#txt-top-filter'
+    await page.waitForSelector(searchSelector)
+    await page.focus(searchSelector)
+    await page.keyboard.type(code)
+    await page.waitForSelector('.tt-suggestion')
+    const resultSelector = 'body > div.page-container > div.navbar.navbar-top > div > div.navbar-collapse.collapse.no-padder > div.form.navbar-form.navbar-right.hidden-xs.hidden-sm > div > span > div > div > div:nth-child(2)'
+    await click(page, resultSelector)
+    const result = page.url()
+    await browser.close()
+    return result
+    // console.log(page.url(), 'page.url()')
+}
 
 const fetchDomPuppeteer = async (url, quarter) => {
     /* #region  set up browser and page */
@@ -152,7 +183,7 @@ const fetchDomPuppeteer = async (url, quarter) => {
 
 
     const dom = await page.evaluate(() => document.querySelector('*').outerHTML);
-    // browser.close()
+    browser.close()
     return dom
     // console.log(dom)
 
@@ -170,5 +201,6 @@ module.exports = {
     fetchHtmlFromPuppeteer,
     formatNumber,
     getChiSoTaiChinhBySelector,
-    fetchDomPuppeteer
+    fetchDomPuppeteer,
+    getCompanyUrl
 }

@@ -1,7 +1,6 @@
 const { composeAsync, fetchElemInnerText } = require("./helpers")
 const fs = require('fs')
-const { getIndexByColumnName, getTextAtIndex, fetchHtmlFromPuppeteer, formatNumber, getChiSoTaiChinhBySelector, fetchDomPuppeteer } = require("./utils")
-const url = `https://finance.vietstock.vn/BVH-tap-doan-bao-viet.htm`
+const { fetchHtmlFromPuppeteer, getChiSoTaiChinhBySelector, fetchDomPuppeteer, getCompanyUrl } = require("./utils")
 
 
 const getQuarterText = quarterCode => {
@@ -36,7 +35,7 @@ const handler = ($, time) => {
 }
 
 const fetchData = async (time, code) => {
-
+    const url = await getCompanyUrl(code)
     const dom = await fetchDomPuppeteer(url, getQuarterText(time))
 
     const $ = await fetchHtmlFromPuppeteer(dom)
@@ -44,5 +43,12 @@ const fetchData = async (time, code) => {
 
 
 }
+
+// const fetchData = async (time, code) => {
+
+//     await getCompanyUrl(code)
+
+//     return "Done"
+// }
 
 module.exports = { fetchData }
