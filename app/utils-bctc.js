@@ -3,7 +3,7 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 var GetUniqueSelector = require('cheerio-get-css-selector');
 const puppeteer = require('puppeteer')
-const { isHeadless } = require('./../config')
+const { isHeadless } = require('../config')
 
 /**
  * Loads the html string returned for the given URL
@@ -80,24 +80,24 @@ const getChiSoTaiChinhBySelector = ($, quarter, selector) => {
     return result
 }
 
-const isTextExist = async (page, text) => {
-    console.log(text, 'texttext')
-    try {
-        let chk = false
-        if ((await page.waitForXPath(`//*[contains(text(), "${text}")]`, {
-            timeout: 100
-        })) !== null) {
-            chk = true
-        } else {
-            chk = false
-        }
-        return chk
-    } catch (error) {
-        console.log("Timeout isTextExist")
-        // console.log(error, 'errorerror')
-        return false
-    }
-}
+// const isTextExist = async (page, text) => {
+//     console.log(text, 'texttext')
+//     try {
+//         let chk = false
+//         if ((await page.waitForXPath(`//*[contains(text(), "${text}")]`, {
+//             timeout: 100
+//         })) !== null) {
+//             chk = true
+//         } else {
+//             chk = false
+//         }
+//         return chk
+//     } catch (error) {
+//         console.log("Timeout isTextExist")
+//         // console.log(error, 'errorerror')
+//         return false
+//     }
+// }
 
 const click = async (page, selector) => {
     await page.$eval(selector, btn => btn.click());
@@ -109,21 +109,22 @@ const goToPreviousPage = async (page) => {
 }
 
 
-// const getClassName = async (page, selector) => {
-//     const el = await page.$(selector)
-//     const propertyHandle = await el.getProperty('className')
-//     const propertyValue = await propertyHandle.jsonValue();
-//     return propertyValue
-// }
+const getClassName = async (page, selector) => {
+    const el = await page.$(selector)
+    const propertyHandle = await el.getProperty('className')
+    const propertyValue = await propertyHandle.jsonValue();
+    return propertyValue
+}
+// #finance-content > div > div > div:nth-child(3) > div > div.pull-right.m-b > div:nth-child(2)
+// #finance-content > div > div > div:nth-child(1) > div.col-xs-14.col-sm-8.m-b.text-right > div.btn.btn-default.m-l.disabled
+const isFirstPage = async (page) => {
+    const btnBackClass = await getClassName(page, '#finance-content > div > div > div:nth-child(3) > div > div.pull-right.m-b > div:nth-child(2)')
+    if (btnBackClass.includes("disabled")) {
+        return true
+    }
+    return false
 
-// const isFirstPage = async (page) => {
-//     const btnBackClass = await getClassName(page, '#finance-content > div > div > div:nth-child(1) > div.col-xs-14.col-sm-8.m-b.text-right > div:nth-child(1)')
-//     if (btnBackClass.includes("disabled")) {
-//         return true
-//     }
-//     return false
-
-// }
+}
 
 
 const goToNextPage = async (page) => {
@@ -288,32 +289,32 @@ const fetchDomPuppeteer = async (url, quarter) => {
     /* #endregion */
 }
 
-const fetchDomMatchedTime = async (url, quarter, detectorSelector) => {
-    const { page, browser } = await initChrome()
+// const fetchDomMatchedTime = async (url, quarter, detectorSelector) => {
+//     const { page, browser } = await initChrome()
 
-    /* #region  login */
-    await page.goto(url);
-    await page.waitForSelector(detectorSelector)
+//     /* #region  login */
+//     await page.goto(url);
+//     await page.waitForSelector(detectorSelector)
 
-    let isQuarterFound = await isTextExist(page, quarter)
-    let goBackRes = ''
-    if (!isQuarterFound) {
-        goBackRes = await goBackUntilFound(page, quarter)
-        // console.log(goBackRes, 'goBackResgoBackRes 1')
+//     let isQuarterFound = await isTextExist(page, quarter)
+//     let goBackRes = ''
+//     if (!isQuarterFound) {
+//         goBackRes = await goBackUntilFound(page, quarter)
+//         // console.log(goBackRes, 'goBackResgoBackRes 1')
 
-    }
-    // console.log(goBackRes, 'goBackResgoBackRes')
-    if (goBackRes === null) {
-        return null
-    }
+//     }
+//     // console.log(goBackRes, 'goBackResgoBackRes')
+//     if (goBackRes === null) {
+//         return null
+//     }
 
-    const dom = await page.evaluate(() => document.querySelector('*').outerHTML);
-    browser.close()
-    return dom
-    // console.log(dom)
+//     const dom = await page.evaluate(() => document.querySelector('*').outerHTML);
+//     browser.close()
+//     return dom
+//     // console.log(dom)
 
-    /* #endregion */
-}
+//     /* #endregion */
+// }
 
 
 module.exports = {
@@ -328,5 +329,5 @@ module.exports = {
     getChiSoTaiChinhBySelector,
     fetchDomPuppeteer,
     getCompanyUrl,
-    fetchDomMatchedTime
+    // fetchDomMatchedTime
 }

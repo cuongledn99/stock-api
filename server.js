@@ -3,7 +3,8 @@ const logger = require('morgan');
 const express = require('express');
 const { sendResponse } = require('./app/helpers');
 const { fetchAuthorProfile } = require('./app/scotch');
-const { fetchData } = require('./app/vietstock');
+// const { fetchData, getBCTC } = require('./app/vietstock');
+const { getBCTC } = require('./app/crawlers/bctc')
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -19,12 +20,31 @@ app.get('/ping', async (req, res, next) => {
 	})
 })
 
-app.get('/stock', async (req, res, next) => {
+// app.get('/stock', async (req, res, next) => {
+// 	try {
+// 		// console.log(req.query, 'req.queryreq.query')
+// 		const { time, code } = req.query
+// 		// console.log({ time, code }, 'router ...')
+// 		const data = await fetchData(time, code)
+// 		return res.send({
+// 			success: true,
+// 			data
+// 		})
+// 	} catch (error) {
+// 		console.log("errr")
+// 		console.log(error)
+// 		console.log("errr===")
+
+// 	}
+
+// })
+
+app.get('/bctc', async (req, res, next) => {
 	try {
-		// console.log(req.query, 'req.queryreq.query')
 		const { time, code } = req.query
-		// console.log({ time, code }, 'router ...')
-		const data = await fetchData(time, code)
+		// const { time, code } = { time: "Q2_2020", code: "VCB" }
+
+		const data = await getBCTC(time, code)
 		return res.send({
 			success: true,
 			data
@@ -35,12 +55,11 @@ app.get('/stock', async (req, res, next) => {
 		console.log("errr===")
 
 	}
-
 })
-app.get('/scotch/:author', (req, res, next) => {
-	const author = req.params.author;
-	sendResponse(res)(fetchAuthorProfile(author));
-});
+// app.get('/scotch/:author', (req, res, next) => {
+// 	const author = req.params.author;
+// 	sendResponse(res)(fetchAuthorProfile(author));
+// });
 
 
 
