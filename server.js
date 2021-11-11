@@ -41,6 +41,7 @@ app.get('/ping', async (req, res, next) => {
 
 app.get('/bctc', async (req, res, next) => {
 	try {
+		// console.log("Hello from router crawl")
 		const { time, code } = req.query
 		// const { time, code } = { time: "Q2_2020", code: "VCB" }
 

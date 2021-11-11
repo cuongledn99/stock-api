@@ -12,6 +12,7 @@ const getEPS = ($, quarter) => {
     return getChiSoTaiChinhBySelector($, quarter, '#table-2 > tbody > tr:nth-child(1)')
 }
 
+// quarter la timeLabel do
 const getTSNgan = ($, quarter) => {
     // //*[@id="finance-content"]/div/div/div[4]/div[2]/table/tbody/tr[1]
     // #finance-content > div > div > div.pos-relative.content-grid.w100 > div:nth-child(2) > table > tbody > tr:nth-child(1)

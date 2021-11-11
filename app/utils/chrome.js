@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer')
 const { isHeadless } = require('./../../config')
-const { isTextExist } = require('./../utils/index')
+const { isTextExist, getTimeType, isTimeLabelExist } = require('./../utils/index')
 
 // const DETECTOR_SELECTOR = ['#table-0 > tbody > tr:nth-child(1)']
 const initChrome = async () => {
@@ -64,20 +64,28 @@ const initChrome = async () => {
     })
     return { page, browser }
 }
-
-const fetchDomMatchedTime = async (url, quarter, detectorSelector) => {
+const setTimeType = async (page, timeType) => {
+    console.log(timeType, 'timeTypetimeType')
+    if (timeType === 'YEAR') {
+        console.log("Styart seelct eyar")
+        // await click(page, "#btn-menu-all")
+        await page.select('select[name="period"]', "1")
+        await click(page, "#finance-content > div > div > div:nth-child(3) > div > button")
+    }
+}
+const fetchDomMatchedTime = async (url, time, detectorSelector) => {
     const { page, browser } = await initChrome()
 
-    /* #region  login */
     await page.goto(url);
     await page.waitForSelector(detectorSelector)
 
-    let isQuarterFound = await isTextExist(page, quarter)
-    let goBackRes = ''
-    if (!isQuarterFound) {
-        goBackRes = await goBackUntilFound(page, quarter)
-        // console.log(goBackRes, 'goBackResgoBackRes 1')
+    await setTimeType(page, getTimeType(time))
 
+    let isTimeFouned = await isTimeLabelExist(page, time)
+    // let isTimeFouned = await isTextExist(page, time)
+    let goBackRes = ''
+    if (!isTimeFouned) {
+        goBackRes = await goBackUntilFound(page, time)
     }
     // console.log(goBackRes, 'goBackResgoBackRes')
     if (goBackRes === null) {
@@ -97,7 +105,7 @@ async function goBackUntilFound(page, time) {
     const isOutOfData = await isFirstPage(page)
     // console.log(isOutOfData, 'isOutOfDataisOutOfData')
     await page.waitForSelector('#finance-content > div > div > div.pos-relative.content-grid.w100 > div:nth-child(1) > table > thead > tr')
-    let isQuarterFound = await isTextExist(page, time)
+    let isQuarterFound = await isTimeLabelExist(page, time)
     console.log({ isQuarterFound, isOutOfData, time })
     if (!isQuarterFound && isOutOfData) {
         console.log("return ne")
