@@ -10,11 +10,23 @@ const getYearText = year => {
 }
 
 const getTimeType = time => {
+    // console.log(time, 'timetime')
     if (time.includes("_")) {
         return 'QUARTER'
     }
 
     return 'YEAR'
+}
+
+const getTimeLabel = timeType => {
+    let timeLabel
+    if (getTimeType(timeType) === 'QUARTER') {
+        timeLabel = getQuarterText(timeType)
+    } else {
+        timeLabel = getYearText(timeType)
+    }
+
+    return timeLabel
 }
 
 
@@ -56,4 +68,4 @@ const isTextExist = async (page, text) => {
     }
 }
 
-module.exports = { getQuarterText, isTextExist, getYearText, getTimeType, isTimeLabelExist }
+module.exports = { getQuarterText, isTextExist, getYearText, getTimeType, isTimeLabelExist, getTimeLabel }

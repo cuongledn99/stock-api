@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer')
 const { isHeadless } = require('./../../config')
-const { isTextExist, getTimeType, isTimeLabelExist } = require('./../utils/index')
+const { getTimeLabel, getTimeType, isTimeLabelExist } = require('./../utils/index')
 
 // const DETECTOR_SELECTOR = ['#table-0 > tbody > tr:nth-child(1)']
 const initChrome = async () => {
@@ -81,11 +81,11 @@ const fetchDomMatchedTime = async (url, time, detectorSelector) => {
 
     await setTimeType(page, getTimeType(time))
 
-    let isTimeFouned = await isTimeLabelExist(page, time)
+    let isTimeFouned = await isTimeLabelExist(page, getTimeLabel(time))
     // let isTimeFouned = await isTextExist(page, time)
     let goBackRes = ''
     if (!isTimeFouned) {
-        goBackRes = await goBackUntilFound(page, time)
+        goBackRes = await goBackUntilFound(page, getTimeLabel(time))
     }
     // console.log(goBackRes, 'goBackResgoBackRes')
     if (goBackRes === null) {
@@ -106,10 +106,10 @@ async function goBackUntilFound(page, time) {
     // console.log(isOutOfData, 'isOutOfDataisOutOfData')
     await page.waitForSelector('#finance-content > div > div > div.pos-relative.content-grid.w100 > div:nth-child(1) > table > thead > tr')
     let isQuarterFound = await isTimeLabelExist(page, time)
-    console.log({ isQuarterFound, isOutOfData, time })
+    // console.log({ isQuarterFound, isOutOfData, time })
     if (!isQuarterFound && isOutOfData) {
         console.log("return ne")
-        console.log({ isQuarterFound, isOutOfData, time })
+        // console.log({ isQuarterFound, isOutOfData, time })
         return null
     }
     // console.log(isQuarterFound, 'isQuarterFound ' + time)

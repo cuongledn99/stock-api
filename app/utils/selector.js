@@ -44,6 +44,9 @@ const getChiSoTaiChinhBySelector = ($, quarter, selector) => {
 
 
     const text = getTextAtIndex($, $chiSo, timeIndex)
+    if (text === null) {
+        return 0
+    }
     // console.log(text, 'texttexttext')
     const result = formatNumber(text)
     return result
